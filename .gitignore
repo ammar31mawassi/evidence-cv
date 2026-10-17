@@ -1,0 +1,16 @@
+private/
+state/
+output/
+.env
+.env.*
+!.env.example
+__pycache__/
+.pytest_cache/
+node_modules/
+*.pdf
+*.png
+*.jpg
+*.log
+*.aux
+*.out
+*.zip

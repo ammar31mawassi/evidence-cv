@@ -1,0 +1,58 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[a4paper,margin=17mm]{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\definecolor{CVPaper}{HTML}{FAFAF7}
+\definecolor{CVInk}{HTML}{202020}
+\definecolor{CVSecondary}{HTML}{454545}
+\definecolor{CVRule}{HTML}{B5B5AF}
+\definecolor{CVLink}{HTML}{163B62}
+\pagecolor{CVPaper}
+\color{CVInk}
+\ifdefined\pdfgentounicode
+  \input{glyphtounicode}
+  \pdfgentounicode=1
+\fi
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlist[itemize]{leftmargin=1.25em,itemsep=1.5pt,topsep=2pt,parsep=0pt,partopsep=0pt}
+\raggedright
+\newcommand{\cvsection}[1]{%
+  \par\addvspace{7pt}%
+  {\fontsize{10.5}{12}\selectfont\bfseries\MakeUppercase{#1}\enspace
+   {\color{CVRule}\leaders\hrule height 0.35pt\hfill}\kern0pt\par}%
+  \nobreak\vspace{4pt}}
+\newcommand{\cventry}[2]{\textbf{#1}\hfill{\fontsize{10}{12}\selectfont\color{CVSecondary}#2}\par\nobreak}
+\newcommand{\cvproject}[4]{%
+  \par\addvspace{3pt}%
+  \cventry{\href{#2}{#1}}{#4}%
+  {\fontsize{10}{12}\selectfont\color{CVSecondary}#3\par}\nobreak}
+\AtEndDocument{\ifnum\value{page}=1\relax\else
+  \PackageError{cv}{CV must be exactly one page}{Shorten weaker content rather than shrinking the body font.}
+\fi}
+
+\begin{document}
+{\fontsize{28}{31}\selectfont\bfseries @@NAME@@}\par
+\textbf{@@HEADLINE@@}\hfill{\fontsize{10}{12}\selectfont @@AVAILABILITY@@}\par
+\vspace{3pt}
+{\fontsize{10}{12}\selectfont\mbox{@@CONTACTS@@}\par}
+\vspace{4pt}{\color{CVLink}\hrule height 0.7pt}\vspace{6pt}
+Hands-on project experience
+\cvsection{Education}
+@@EDUCATION@@
+\cvsection{Technical Skills}
+Placeholder skills
+\cvsection{Projects}
+Placeholder projects
+\cvsection{Experience}
+@@EXPERIENCE@@
+\cvsection{Awards and Activities}
+@@AWARDS@@
+\cvsection{Languages}
+@@LANGUAGES@@
+\end{document}

@@ -1,0 +1,44 @@
+{
+  "name": "Alex Example",
+  "headline": "Junior Software Engineer",
+  "availability": "Full-time availability",
+  "contacts": [
+    {
+      "label": "alex@example.com",
+      "url": "mailto:alex@example.com"
+    },
+    {
+      "label": "Portfolio",
+      "url": "https://example.com"
+    }
+  ],
+  "education": [
+    {
+      "title": "Example University",
+      "detail": "B.Sc. Computer Science - in progress",
+      "dates": "Expected 2028"
+    }
+  ],
+  "skills": [
+    "Python",
+    "Java",
+    "C++",
+    "SQL",
+    "React",
+    "FastAPI",
+    "Git",
+    "Docker",
+    "JUnit",
+    "PyTorch"
+  ],
+  "experience": [
+    {
+      "title": "Peer Programming Tutor",
+      "dates": "2025-Present",
+      "detail": "Fictional example. Replace with verified experience.",
+      "bullets": []
+    }
+  ],
+  "awards": [],
+  "languages": "English (Fluent)"
+}

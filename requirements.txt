@@ -1,0 +1,9 @@
+fastapi==0.115.12
+uvicorn==0.34.2
+requests==2.32.5
+beautifulsoup4==4.13.4
+trafilatura==2.0.0
+jsonschema==4.23.0
+PyMuPDF==1.26.5
+playwright==1.56.0
+pytest==8.3.5

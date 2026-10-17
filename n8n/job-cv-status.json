@@ -1,0 +1,11 @@
+{
+  "id": "localJobCvStatus",
+  "name": "Local Job CV - Progress and PDF Path",
+  "active": false,
+  "nodes": [
+    {"id": "status", "name": "Progress request", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [0, 0], "webhookId": "local-job-cv-status", "parameters": {"httpMethod": "GET", "path": "job-cv/status", "responseMode": "lastNode", "responseData": "firstEntryJson", "options": {}}},
+    {"id": "read", "name": "Read generation result", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [260, 0], "parameters": {"url": "=http://worker:8012/jobs/{{ $json.query.id }}", "options": {"timeout": 30000}}}
+  ],
+  "connections": {"Progress request": {"main": [[{"node": "Read generation result", "type": "main", "index": 0}]]}},
+  "settings": {"executionOrder": "v1", "saveDataSuccessExecution": "none", "saveDataErrorExecution": "all"}
+}

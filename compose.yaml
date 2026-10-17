@@ -1,0 +1,58 @@
+name: evidence-cv
+services:
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    environment:
+      OLLAMA_NO_CLOUD: "1"
+    ports:
+      - "127.0.0.1:11436:11434"
+    volumes:
+      - models:/root/.ollama
+  worker:
+    build: .
+    restart: unless-stopped
+    environment:
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3.5:4b}
+      SOURCE_DIR: /sources
+      OUTPUT_DIR: /output
+      STATE_DIR: /state
+      WINDOWS_OUTPUT_DIR: ${JOB_CV_OUTPUT_DIR:-/output}
+    ports:
+      - "127.0.0.1:8012:8012"
+    volumes:
+      - ./private:/sources:ro
+      - ./output:/output
+      - ./state:/state
+    depends_on:
+      - ollama
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8012/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:2.40.7
+    restart: unless-stopped
+    environment:
+      GENERIC_TIMEZONE: UTC
+      TZ: UTC
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      N8N_TEMPLATES_ENABLED: "false"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_HOST: localhost
+      N8N_PORT: "5681"
+      N8N_PROTOCOL: http
+    ports:
+      - "127.0.0.1:5681:5681"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n:/workflow-import:ro
+    depends_on:
+      worker:
+        condition: service_healthy
+volumes:
+  models:
+  n8n_data:

@@ -1,0 +1,143 @@
+{
+  "projects": [
+    {
+      "id": "sample-api",
+      "name": "Example Task API",
+      "status": "Academic project",
+      "access": "local",
+      "url": null,
+      "technologies": [
+        "Python",
+        "FastAPI",
+        "SQL"
+      ],
+      "engineering": "Educational implementation and testing",
+      "best_fit": "backend",
+      "limits": "Fictional example only; replace every claim.",
+      "evidence": [
+        "Fictional fixture; not real career evidence"
+      ],
+      "contribution": "Fictional example; confirm actual personal work.",
+      "technical_depth": 2,
+      "evidence_strength": 1,
+      "presentation_readiness": 1,
+      "role_ratings": {
+        "backend": 4,
+        "general": 2
+      },
+      "rating_reasons": {
+        "backend": "Illustrative relevance rating; verify against real implementation."
+      },
+      "approved": false,
+      "bullets": [
+        {
+          "id": "sample-api.1",
+          "text": "Implemented a fictional task API with input validation and relational persistence.",
+          "sources": [
+            "Fictional fixture"
+          ]
+        },
+        {
+          "id": "sample-api.2",
+          "text": "Added tests for creation, updates and invalid requests.",
+          "sources": [
+            "Fictional fixture"
+          ]
+        }
+      ],
+      "description": "Implemented a fictional task API with input validation and relational persistence."
+    },
+    {
+      "id": "sample-java",
+      "name": "Example Event Simulator",
+      "status": "Academic project",
+      "access": "local",
+      "url": null,
+      "technologies": [
+        "Java",
+        "JUnit"
+      ],
+      "engineering": "Educational implementation and testing",
+      "best_fit": "java",
+      "limits": "Fictional example only; replace every claim.",
+      "evidence": [
+        "Fictional fixture; not real career evidence"
+      ],
+      "contribution": "Fictional example; confirm actual personal work.",
+      "technical_depth": 2,
+      "evidence_strength": 1,
+      "presentation_readiness": 1,
+      "role_ratings": {
+        "java": 4,
+        "general": 2
+      },
+      "rating_reasons": {
+        "java": "Illustrative relevance rating; verify against real implementation."
+      },
+      "approved": false,
+      "bullets": [
+        {
+          "id": "sample-java.1",
+          "text": "Implemented a fictional event simulator using Java components and message dispatch.",
+          "sources": [
+            "Fictional fixture"
+          ]
+        },
+        {
+          "id": "sample-java.2",
+          "text": "Added JUnit cases for event ordering and completion handling.",
+          "sources": [
+            "Fictional fixture"
+          ]
+        }
+      ],
+      "description": "Implemented a fictional event simulator using Java components and message dispatch."
+    },
+    {
+      "id": "sample-ml",
+      "name": "Example Image Classifier",
+      "status": "Academic project",
+      "access": "local",
+      "url": null,
+      "technologies": [
+        "Python",
+        "PyTorch"
+      ],
+      "engineering": "Educational implementation and testing",
+      "best_fit": "ml",
+      "limits": "Fictional example only; replace every claim.",
+      "evidence": [
+        "Fictional fixture; not real career evidence"
+      ],
+      "contribution": "Fictional example; confirm actual personal work.",
+      "technical_depth": 2,
+      "evidence_strength": 1,
+      "presentation_readiness": 1,
+      "role_ratings": {
+        "ml": 4,
+        "general": 2
+      },
+      "rating_reasons": {
+        "ml": "Illustrative relevance rating; verify against real implementation."
+      },
+      "approved": false,
+      "bullets": [
+        {
+          "id": "sample-ml.1",
+          "text": "Adapted a fictional image-classification exercise using PyTorch.",
+          "sources": [
+            "Fictional fixture"
+          ]
+        },
+        {
+          "id": "sample-ml.2",
+          "text": "Prepared separate training and validation routines for an educational experiment.",
+          "sources": [
+            "Fictional fixture"
+          ]
+        }
+      ],
+      "description": "Adapted a fictional image-classification exercise using PyTorch."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "localJobCvSubmit",
+  "name": "Local Job CV - Submit URL",
+  "active": false,
+  "nodes": [
+    {"id": "submit", "name": "Job URL", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [0, 0], "webhookId": "local-job-cv-submit", "parameters": {"httpMethod": "POST", "path": "job-cv", "responseMode": "lastNode", "responseData": "firstEntryJson", "options": {}}},
+    {"id": "enqueue", "name": "Queue local generation", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [260, 0], "parameters": {"method": "POST", "url": "http://worker:8012/jobs", "sendBody": true, "specifyBody": "json", "jsonBody": "={{ JSON.stringify($json.body) }}", "options": {"timeout": 30000}}}
+  ],
+  "connections": {"Job URL": {"main": [[{"node": "Queue local generation", "type": "main", "index": 0}]]}},
+  "settings": {"executionOrder": "v1"}
+}
