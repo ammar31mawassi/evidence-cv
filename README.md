@@ -30,6 +30,8 @@ flowchart TD
 
 Requirements: Git, Docker with Linux containers, and enough RAM for your chosen local model. NVIDIA GPU use is optional. Windows PowerShell helpers are included; other operating systems can use Docker Compose and the Python CLI. GitHub CLI is optional for authenticated collection. No OpenAI/Anthropic keys are required for automated generation. Initial image/model downloads and job-page fetching need internet; model inference stays local.
 
+For a compatible NVIDIA Docker setup, copy `compose.gpu.yaml` to ignored `compose.local.yaml` before running setup. `start.ps1` automatically includes this local override on subsequent starts. Keep machine-specific volume/storage overrides in that ignored file too.
+
 ```powershell
 git clone https://github.com/ammar31mawassi/evidence-cv.git
 cd evidence-cv
@@ -120,7 +122,7 @@ Docker tests: `docker compose run --rm --no-deps worker python -m pytest -q`. Te
 
 The initial release was tested with fictional identity changes, approval invalidation, source requirements, role rankings, private-link exclusion, skill preservation, structured Ollama request/response tests and actual PDF compilation with Tectonic. The companion scoring adapter was run against a public account. Three personal role showcases were agent-selected and compiled through this generic engine; they are not included in the repository. They demonstrate rendering and evidence selection, not a benchmark of a local model's writing quality.
 
-Docker Desktop failed to start on the release machine, so a fresh end-to-end n8n/Ollama deployment of this generalized version has not been verified there. The earlier personal workflow used this architecture, but that does not replace testing a clean installation. CI performs a fresh Linux/TeX fixture test; its status should be checked before relying on a release.
+The generalized Docker deployment has now been tested with a newly built worker, a new n8n data volume and an existing downloaded `qwen3.5:4b` model on an NVIDIA GPU. A real job URL completed the PowerShell → n8n → local Ollama → LaTeX → validated one-page PDF path and returned an accessible Windows file path. All 18 tests also passed inside the Docker worker. This verifies that deployment and posting; it does not guarantee extraction or selection quality for every website/model. CI separately tests fictional profiles and PDF compilation on Linux.
 
 ## Limitations
 

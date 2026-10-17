@@ -7,6 +7,7 @@ output/
 __pycache__/
 .pytest_cache/
 node_modules/
+compose.local.yaml
 *.pdf
 *.png
 *.jpg

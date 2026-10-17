@@ -3,5 +3,6 @@ state
 output
 .env*
 .git
+compose.local.yaml
 __pycache__
 .pytest_cache
