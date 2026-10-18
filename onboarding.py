@@ -25,6 +25,15 @@ def validate_private(root, require_seal=False):
         raise CVError('Skill names must be nonempty strings.')
     if any(not e.get('title') or not e.get('detail') or not e.get('dates') for e in profile['education']):
         raise CVError('Education requires title, detail (including degree status) and dates.')
+    if 'summary' in profile and (not isinstance(profile['summary'], str) or not profile['summary'].strip()):
+        raise CVError('The optional summary must be nonempty reviewed text.')
+    for entry in profile['education']:
+        rows = entry.get('coursework', [])
+        if not isinstance(rows, list) or any(
+            not isinstance(row, dict) or any(not isinstance(row.get(key), str) or not row[key].strip()
+                                          for key in ['label', 'text']) for row in rows
+        ):
+            raise CVError('Coursework requires a list of nonempty label/text rows.')
     for contact in profile['contacts']:
         if not contact.get('label') or urlparse(contact.get('url','')).scheme not in {'http','https','mailto','tel'}:
             raise CVError('Invalid contact label or URL scheme.')

@@ -36,6 +36,18 @@ def test_changed_fact_requires_review(records):
     (records/'profile.json').write_text(json.dumps(p))
     with pytest.raises(CVError,match='changed'): engine.load_catalog()
 
+def test_reviewed_summary_and_coursework(records):
+    p,c=validate_private(records,True)
+    p['summary']='Built a Java message bus and tested Python APIs.'
+    p['education'][0]['coursework']=[{'label':'Systems', 'text':'Operating Systems (91); Networks (93)'}]
+    (records/'profile.json').write_text(json.dumps(p)); seal(records)
+    source,_=engine.render(choice(c),c)
+    assert p['summary'] in source
+    assert r'\textbf{Systems:} Operating Systems (91); Networks (93)\par' in source
+    p['education'][0]['coursework']=[{'label':'Systems'}]
+    (records/'profile.json').write_text(json.dumps(p))
+    with pytest.raises(CVError,match='Coursework'): validate_private(records)
+
 def test_unapproved_project_is_blocked(records):
     c=json.loads((records/'projects.json').read_text()); c['projects'][0]['approved']=False
     (records/'projects.json').write_text(json.dumps(c))

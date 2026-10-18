@@ -222,10 +222,10 @@ def render(choice, catalog, level=0):
         raise CVError('Every verified master skill must appear exactly once in the CV.')
     skill_lines = [r'\textbf{' + tex_escape(label) + ':} ' + tex_escape(', '.join(values)) + r'\par'
                    for label, values in group_skills(skills)]
-    # This introduction states only the selected project's evidenced technologies.
+    # An optional profile summary is fixed, reviewed text covered by the approval seal.
     project_tech = {t for selected in projects for t in by_id[selected['id']]['technologies']}
     intro_skills = [s for s in skills if s in project_tech and len(s) <= 18][:4]
-    intro = 'Project experience using ' + ', '.join(intro_skills) + '.'
+    intro = profile().get('summary') or ('Project experience using ' + ', '.join(intro_skills) + '.')
     # Fail loudly if the approved template structure changes, instead of corrupting it.
     def replace_region(start, end, replacement):
         nonlocal source

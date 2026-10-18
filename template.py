@@ -8,6 +8,8 @@ def make_template(profile):
         lines=[]
         for item in items:
             lines += [r'\cventry{'+esc(item['title'])+'}{'+esc(item.get('dates',''))+'}',esc(item.get('detail',''))+r'\par']
+            for row in item.get('coursework', []):
+                lines += [r'\textbf{'+esc(row['label'])+':} '+esc(row['text'])+r'\par']
             if item.get('bullets'):
                 lines += [r'\begin{itemize}'] + [r'\item '+esc(b) for b in item['bullets']] + [r'\end{itemize}']
         return '\n'.join(lines)
