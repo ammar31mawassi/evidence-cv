@@ -102,6 +102,30 @@ def test_fresh_closed_or_changed_job_not_emailed(configured,monkeypatch):
     report=discovery.scan(force=True)
     assert not report['jobs'] and not sent
 
+
+@pytest.mark.parametrize('disconnect',[False,True])
+def test_smtp_delivery_confirmation_and_uncertain_disconnect(tmp_path,monkeypatch,disconnect):
+    import digest_mail
+    import smtplib
+    path=tmp_path/'smtp.json';path.write_text(json.dumps({'username':'sender@example.com','password':'fixture only'}))
+    monkeypatch.setenv('GMAIL_SMTP_FILE',str(path))
+    calls=[]
+    class Server:
+        def __init__(self,host,port,**kwargs):
+            assert host=='smtp.gmail.com' and port==465 and kwargs['context'].check_hostname
+        def login(self,user,password):calls.append(user)
+        def send_message(self,message):
+            assert message['To']=='recipient@example.com'
+            if disconnect:raise smtplib.SMTPServerDisconnected('fixture disconnect')
+            return {}
+        def close(self):pass
+    monkeypatch.setattr(digest_mail.smtplib,'SMTP_SSL',Server)
+    args=('Job matches','Evidence and gaps',{'mode':'smtp','sender':'sender@example.com','recipient':'recipient@example.com'})
+    if disconnect:
+        with pytest.raises(DeliveryUncertain):digest_mail.send(*args)
+    else:assert digest_mail.send(*args).endswith('@evidence-cv.local>')
+    assert calls==['sender@example.com']
+
 def test_fresh_employer_is_also_blacklisted(configured,monkeypatch):
     sent=[];monkeypatch.setattr(discovery,'send',lambda *args:sent.append(1))
     monkeypatch.setattr(discovery,'fetch_job',lambda url:{'title':'Junior Python Developer','company':'ExcludedExample','text':'Python APIs and SQL knowledge.'})

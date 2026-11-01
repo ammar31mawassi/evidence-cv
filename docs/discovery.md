@@ -20,10 +20,19 @@ Discovery is asynchronous and shares the worker's single queue with CV generatio
 2. Copy `examples/search.example.json` to ignored `private/search.json`. Set role/location preferences, source boards, recipient and sender. Keep `enabled=false` while testing.
 3. Create ignored `private/employer-blacklist.json` with `{"companies":[]}` or entries shaped as `{name, aliases, reason, sources}`. This is a static private preference file. The workflow only compares employer names to aliases; it does not research companies, infer military ties or quarantine unknown companies. Short aliases use word boundaries to reduce false matches. Include alternate employer/parent names explicitly when desired. The list is not exhaustive or self-updating.
 4. Add a random `DISCOVERY_TOKEN` to ignored `.env`. This protects the worker's digest endpoints and is supplied to the local n8n workflow through its environment. Do not paste it into tracked workflow JSON. n8n node environment access is enabled for this locally controlled workflow.
-5. Provide an existing Gmail OAuth token authorized for `gmail.send`. Use an ignored `compose.local.yaml` override to mount its directory read-only and set `GMAIL_TOKEN_FILE` to its container path. The sender must be the authorized mailbox or a permitted alias. The token/client secret stays local and is never sent to the model. No paid model keys are required; Gmail still requires an authorized account.
+5. Configure a dedicated Gmail App Password with `./configure-gmail.ps1 -Email your-address@gmail.com`. Enable 2-step verification and create an App Password named Evidence CV at [Google Account](https://myaccount.google.com/apppasswords), then enter it only in the local hidden prompt. This sets `mail.mode=smtp` and saves ignored `private/mail-secrets/smtp.json`. Mount `./private/mail-secrets:/mail-secrets:ro` in an ignored `compose.local.yaml`. The runtime connects to Gmail over verified TLS on port 465. App Passwords are separate from your normal Google password. See [Google's help](https://support.google.com/mail/answer/7104828) for account support. Credentials are never sent to the model. No paid model keys are required.
 6. Optional crawler: set worker build arg `INSTALL_CRAWL4AI: "1"` and environment `ENABLE_CRAWL4AI: "1"` in the local override. Browser requests keep public-network checks; login/captcha bypass is not implemented. See NOTICE for attribution.
 7. Run `job-cv -Build`, then `job-cv -Discover -NoEmail`. Inspect the actual matches, exclusions, source failures and gaps with `job-cv -DigestStatus`.
 8. Set `enabled=true` after review and run `job-cv -Discover` to test a real digest. Both the explicit recipient and scheduled sending must be authorized by the user. The importer publishes the discovery workflow when the local token is configured.
+
+Dedicated Gmail OAuth is an alternative (`mail.mode=gmail`, `GMAIL_TOKEN_FILE=/mail-secrets/gmail-token.json`). Use an OAuth client created for this project and confirm the app name in Google's consent screen. Never silently borrow another project's client or mailbox. To set up or renew dedicated authorization on the host:
+
+```powershell
+python -m pip install google-auth-oauthlib
+python authorize-gmail.py --client ./private/client_secret.json --token ./private/gmail-token.json
+```
+
+Use a Gmail Desktop OAuth client and complete Google's browser consent. The helper requests only `gmail.send`, listens on loopback, and saves the token locally. Point the read-only mail mount at that token directory. An OAuth project left in Google's external testing mode can have short-lived refresh authorization; see [Google's documentation](https://developers.google.com/identity/protocols/oauth2#expiration). No secret or authorization link belongs in Git. A rejected login/refresh is a failed run, never a successful email.
 
 The schedule is defined in `n8n/job-discovery.json`. If changing the hour/timezone, update that workflow and `private/search.json` together, then rerun the importer. There is no remote scheduler and no execution while the PC is offline.
 
