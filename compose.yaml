@@ -18,6 +18,8 @@ services:
       SOURCE_DIR: /sources
       OUTPUT_DIR: /output
       STATE_DIR: /state
+      CRAWL4AI_NO_CLOUD_NOTICE: "1"
+      DISCOVERY_TOKEN: ${DISCOVERY_TOKEN:-}
       WINDOWS_OUTPUT_DIR: ${JOB_CV_OUTPUT_DIR:-/output}
     ports:
       - "127.0.0.1:8012:8012"
@@ -43,6 +45,8 @@ services:
       N8N_TEMPLATES_ENABLED: "false"
       N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
       N8N_HOST: localhost
+      DISCOVERY_TOKEN: ${DISCOVERY_TOKEN:-}
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
       N8N_PORT: "5681"
       N8N_PROTOCOL: http
     ports:

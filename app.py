@@ -7,12 +7,13 @@ import shutil
 import threading
 import uuid
 import ntpath
+import secrets
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from pathlib import Path
 from urllib.parse import urlparse
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel, Field
 
 from engine import MODEL, SOURCES, analyze, compile_cv, load_catalog, safe_name, select
@@ -67,7 +68,11 @@ def run(jid):
             job = fetch_job(request['url'])
         (work / 'posting.json').write_text(json.dumps(job, ensure_ascii=False, indent=2), encoding='utf-8')
         write(jid, stage='analyzing requirements with local Ollama')
-        analysis = analyze(job)
+        try:
+            analysis = analyze(job)
+        finally:
+            if job.get('analysis_diagnostics'):
+                (work / 'analysis-diagnostics.json').write_text(json.dumps(job['analysis_diagnostics'], ensure_ascii=False, indent=2), encoding='utf-8')
         (work / 'analysis.json').write_text(json.dumps(analysis, ensure_ascii=False, indent=2), encoding='utf-8')
         write(jid, stage='selecting verified projects and skills')
         choice = select(catalog, analysis)
@@ -106,6 +111,10 @@ def run(jid):
 @asynccontextmanager
 async def lifespan(app):
     STATE.mkdir(parents=True, exist_ok=True)
+    from discovery import connect, now
+    with connect() as db:
+        db.execute("UPDATE runs SET status='failed',finished=? WHERE status='running'", (now(),))
+        db.execute("UPDATE digests SET status='uncertain',error='Service restarted during delivery; check mailbox before retrying.' WHERE status='sending'")
     for path in STATE.glob('*/status.json'):
         value = json.loads(path.read_text(encoding='utf-8'))
         if value['status'] == 'running':
@@ -136,3 +145,31 @@ def create(request: Request):
 @app.get('/jobs/{jid}')
 def status(jid: str):
     return read(jid)
+
+def discovery_auth(token):
+    expected=os.getenv('DISCOVERY_TOKEN','')
+    if not expected or not token or not secrets.compare_digest(token,expected):
+        raise HTTPException(403,'Discovery authentication required')
+
+class DiscoveryRequest(BaseModel):
+    force: bool=False
+    send_email: bool=True
+
+@app.post('/discovery/run',status_code=202)
+def discovery_run(request:DiscoveryRequest,x_discovery_token:str|None=Header(default=None)):
+    discovery_auth(x_discovery_token)
+    from discovery import scan
+    # Same single-worker queue as CV generation, avoiding competing GPU runs.
+    POOL.submit(scan,request.force,request.send_email)
+    return {'status':'queued','results':'/discovery/latest'}
+
+@app.get('/discovery/latest')
+def discovery_latest(x_discovery_token:str|None=Header(default=None)):
+    discovery_auth(x_discovery_token)
+    from discovery import STATE as discovery_state
+    from discovery import connect
+    with connect() as db:
+        running=db.execute("SELECT id,started FROM runs WHERE status='running' ORDER BY started DESC LIMIT 1").fetchone()
+        if running:return {'status':'running','id':running['id'],'started':running['started']}
+    path=discovery_state/'latest.json'
+    return json.loads(path.read_text(encoding='utf-8')) if path.exists() else {'status':'not_run'}

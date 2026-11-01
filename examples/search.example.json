@@ -1,0 +1,14 @@
+{
+  "enabled": false,
+  "timezone": "Asia/Jerusalem",
+  "hour": 13,
+  "top_n": 10,
+  "max_model_jobs": 18,
+  "min_score": 45,
+  "max_required_years": 2,
+  "allow_worldwide_remote": true,
+  "send_empty": false,
+  "role_pattern": "software|developer|full.?stack|back.?end|front.?end|automation|devops",
+  "sources": [{"kind":"freehire","queries":["junior software","software intern"],"limit":50}],
+  "mail": {"mode":"gmail","sender":"sender@example.com","recipient":"recipient@example.com"}
+}

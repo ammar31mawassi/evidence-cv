@@ -27,8 +27,17 @@ def validate_private(root, require_seal=False):
         raise CVError('Education requires title, detail (including degree status) and dates.')
     if 'summary' in profile and (not isinstance(profile['summary'], str) or not profile['summary'].strip()):
         raise CVError('The optional summary must be nonempty reviewed text.')
+    if 'role_summaries' in profile and (not isinstance(profile['role_summaries'],dict) or any(
+        not isinstance(value,str) or not value.strip() for value in profile['role_summaries'].values())):
+        raise CVError('Role summaries must map role names to reviewed text.')
     for entry in profile['education']:
+        role_rows=entry.get('role_coursework',{})
+        if not isinstance(role_rows,dict):raise CVError('Role coursework must map role names to coursework rows.')
         rows = entry.get('coursework', [])
+        if not isinstance(rows,list):raise CVError('Coursework requires a list of rows.')
+        for values in role_rows.values():
+            if not isinstance(values,list):raise CVError('Role coursework requires lists of rows.')
+            rows=rows+values
         if not isinstance(rows, list) or any(
             not isinstance(row, dict) or any(not isinstance(row.get(key), str) or not row[key].strip()
                                           for key in ['label', 'text']) for row in rows

@@ -1,4 +1,5 @@
 private/
+**/employer-blacklist.json
 state/
 output/
 .env

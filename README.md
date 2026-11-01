@@ -48,13 +48,19 @@ After setup:
 
 ```powershell
 # A new PowerShell terminal loads the installed function.
+job-cv  # Start Docker Desktop, services, model and workflows; check readiness.
 job-cv 'https://company.example/careers/specific-job'
+job-cv "https://company.example/careers/specific-job"
 job-cv 'https://company.example/careers/specific-job' -DescriptionFile './private/posting.txt'
+job-cv -Model qwen3.5:4b  # Persist a local model selection; download if missing.
+job-cv -Build  # Rebuild the worker after code changes.
 ```
 
 The command prints the validated PDF's absolute host path. Names use `Company_Role.pdf`; duplicate names get `_2`, `_3`, etc. No dates and no overwriting earlier versions. n8n runs at http://127.0.0.1:5681; create a local owner account on the first UI visit. Two published workflows handle submission and progress. Existing applications using ports 5681/8012/11436 must be stopped or the ports and command configured separately.
 
 ## Manual / cross-platform setup
+
+See [local model choices](docs/local-models.md) for Qwen/DeepSeek tradeoffs and the limits of the startup inference check. First use may download model weights. `job-cv -Model TAG` persists the selection in ignored `.env`; keep the default unless a comparison on your own jobs supports changing it.
 
 ```bash
 cp .env.example .env
@@ -106,12 +112,15 @@ The Python CLI and n8n call the same generation engine. A changed profile/projec
 
 ## Companion tools
 
+See [local discovery and email setup](docs/discovery.md) for the implemented n8n digest, source adapters, private employer exclusions, evidence retrieval, evaluation tools and optional Crawl4AI fallback. The [research record](docs/research-and-roadmap.md) explains the source comparisons and design choices.
+
 See [related projects](docs/related-projects.md). The [GitHub Repo Health Analyzer](https://github.com/ammar31mawassi/repo-health-analyzer) adapter calls its real scoring module and records specific findings. A low score suggests presentation improvements; it never authorizes automatic GitHub changes. The [AI Job Tracker](https://github.com/ammar31mawassi/ai-job-tracker) is an optional separate application tracker.
 
 ## Development and checks
 
 ```bash
 pytest -q
+powershell -NoProfile -File tests/test-launcher.ps1
 git add AGENTS.md README.md  # stage only reviewed generic files
 python privacy_check.py
 ```
@@ -119,6 +128,8 @@ python privacy_check.py
 Docker tests: `docker compose run --rm --no-deps worker python -m pytest -q`. Tests use fictional identities and source-backed fixture records. No private user data is needed in CI. Before publishing, inspect the complete staged diff and history too; ignore rules cannot undo an earlier disclosure.
 
 ### Validation status
+
+The discovery update passes 39 Python tests, including actual fictional-profile PDF compilation, static employer preferences, source grounding, eligibility, endpoint authentication, Gmail transport and duplicate/uncertain delivery handling. The published n8n discovery workflow was exercised through its manual trigger and authenticated worker request. A live preview read four configured sources and re-fetched shortlisted postings; blocked/incomplete finalists were omitted. See the discovery guide for local email configuration and operational limits.
 
 The initial release was tested with fictional identity changes, approval invalidation, source requirements, role rankings, private-link exclusion, skill preservation, structured Ollama request/response tests and actual PDF compilation with Tectonic. The companion scoring adapter was run against a public account. Three personal role showcases were agent-selected and compiled through this generic engine; they are not included in the repository. They demonstrate rendering and evidence selection, not a benchmark of a local model's writing quality.
 
