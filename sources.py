@@ -1,6 +1,7 @@
 """Read-only public ATS/catalog adapters with bounded requests and normalized output."""
 import hashlib
 import json
+import logging
 import re
 from urllib.parse import urlparse, urljoin, urlencode, parse_qsl, urlunparse
 import requests
@@ -63,6 +64,11 @@ def fetch_source(config):
             data=public_json('https://freehire.me/api/v1/jobs/search?'+urlencode(params))
             for j in data.get('data',[]):
                 if j.get('closed_at'):continue
-                output.append(normalized(kind,j.get('public_slug',j['url']),j['title'],j.get('company',''),j['url'],j.get('description',''),j.get('location',''),j.get('countries',[]),j.get('posted_at',''),str(j.get('work_mode','')).casefold()=='remote'))
+                try:
+                    output.append(normalized(kind,j.get('public_slug',j['url']),j['title'],j.get('company',''),j['url'],j.get('description',''),j.get('location',''),j.get('countries',[]),j.get('posted_at',''),str(j.get('work_mode','')).casefold()=='remote'))
+                except (CVError,KeyError,TypeError) as exc:
+                    # One dead destination must not discard every other result.
+                    # URL guards still run here and again before fetching finalists.
+                    logging.getLogger(__name__).warning('Skipped an invalid catalog posting (%s)',type(exc).__name__)
         return output
     raise CVError('Unsupported source: '+kind)

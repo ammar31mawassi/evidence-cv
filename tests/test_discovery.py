@@ -148,6 +148,19 @@ def test_preferred_years_do_not_become_mandatory():
     job['description']='Python required. 5 years of previous experience required.'
     assert not discovery.eligibility(job,fixture_config())['eligible']
 
+
+def test_one_dead_catalog_destination_does_not_discard_other_jobs(monkeypatch):
+    import sources
+    rows=[{'title':'Junior Developer','url':'https://example.com/job'},
+          {'title':'Invalid Destination','url':'https://unreachable.example/job'},
+          {'title':'Missing URL'}]
+    monkeypatch.setattr(sources,'public_json',lambda url:{'data':rows})
+    def normalize(*args):
+        if 'unreachable' in args[4]:raise sources.CVError('Hostname could not be resolved')
+        return {'title':args[2]}
+    monkeypatch.setattr(sources,'normalized',normalize)
+    assert sources.fetch_source({'kind':'freehire','queries':['junior']})==[{'title':'Junior Developer'}]
+
 def test_requirement_ids_restore_exact_source(monkeypatch):
     job={'text':'Example Python Engineer. Requirements: Python API experience. SQL database knowledge is required.',
          'title':'Python Engineer','company':'Example','single_posting':True}
