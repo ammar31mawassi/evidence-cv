@@ -113,6 +113,16 @@ def from_html(raw, url):
         text = soup.get_text(' ', strip=True)
     title = normalize(soup.title.get_text()) if soup.title else ''
     heading, company = '', ''
+    if host in {'www.amazon.jobs', 'amazon.jobs'}:
+        posting = re.fullmatch(r'/(?:[a-z]{2}/)?jobs/(\d+)(?:/[^/]+)?/?', urlparse(url).path)
+        heads = soup.select('h1.title')
+        meta = soup.select_one('.details-line .meta')
+        if posting and len(heads) == 1 and meta:
+            candidate = normalize(heads[0].get_text(' ', strip=True))
+            identity = re.fullmatch(r'Job ID:\s*'+posting.group(1)+r'\s*\|\s*(.+)', normalize(meta.get_text(' ', strip=True)))
+            expected = normalize(candidate+' - Job ID: '+posting.group(1)+' | Amazon.jobs')
+            if candidate and identity and title == expected:
+                heading, company = candidate, identity.group(1)
     if host in {'www.google.com', 'google.com'} and re.search(r'/careers/applications/jobs/results/\d+', urlparse(url).path):
         if re.search(r'\s[—–-]\sGoogle Careers$', title):
             heading = re.sub(r'\s[—–-]\sGoogle Careers$', '', title).strip()

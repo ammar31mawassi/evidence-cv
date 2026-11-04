@@ -96,6 +96,15 @@ def analyze(job):
         by_id={r['id']:r['text'] for r in candidates}
         result['requirements']=[by_id[r] for r in result.pop('requirement_ids')]
     text = evidence_text(job['text'])
+    # Some models put presentation quotes inside the JSON string itself. Remove
+    # only balanced outer pairs, and only accept a result still present in source.
+    for field in ('title','company'):
+        candidate=normalize(result[field])
+        pairs={'"':'"',"'":"'",'\u201c':'\u201d','\u2018':'\u2019'}
+        while len(candidate)>2 and candidate[0] in pairs and candidate[-1]==pairs[candidate[0]]:
+            candidate=candidate[1:-1].strip()
+        if evidence_text(result[field]) not in text and candidate and evidence_text(candidate) in text:
+            result[field]=candidate
     if re.search(r'no longer accepting applications|this job (?:is|has been) (?:closed|removed)|position has been filled', text):
         raise CVError('The posting explicitly reports that applications are closed.')
     # A single source-owned JobPosting or scoped detail-page heading is stronger

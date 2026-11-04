@@ -25,6 +25,33 @@ def test_expired_jsonld_rejected():
     job={'@type':'JobPosting','title':'Python Engineer','description':'Requirements and Python experience. '*20,'validThrough':'2020-01-01'}
     with pytest.raises(CVError,match='validThrough'):from_html('<script type="application/ld+json">'+json.dumps(job)+'</script>','https://example.com/job')
 
+
+def test_amazon_identity_requires_matching_heading_title_and_job_id():
+    raw='<title>Automation Student, Example Team - Job ID: 123456 | Amazon.jobs</title><div class="info"><h1 class="title">Automation Student, Example Team</h1><div class="details-line"><p class="meta">Job ID: 123456 | Example Company Ltd.</p></div></div><main>'+('Requirements: Python testing experience. '*15)+'</main>'
+    url='https://www.amazon.jobs/en/jobs/123456/automation-student'
+    result=from_html(raw,url)
+    assert result['single_posting'] and result['title']=='Automation Student, Example Team'
+    assert result['company']=='Example Company Ltd.' and result['company'] in result['text']
+    assert not from_html(raw,url.replace('123456','999999'))['single_posting']
+    assert not from_html(raw,'https://www.amazon.jobs/en/search')['single_posting']
+    assert not from_html(raw,url.replace('www.amazon.jobs','amazon.jobs.evil.example'))['single_posting']
+    assert not from_html(raw.replace('Job ID: 123456 | Amazon.jobs','Job ID: 999999 | Amazon.jobs'),url)['single_posting']
+
+
+@pytest.mark.parametrize('quote',[('"','"'),('\u201c','\u201d'),("'","'")])
+def test_model_identity_wrapper_quotes_still_require_source_support(monkeypatch,quote):
+    result={'title':quote[0]+'Automation Student'+quote[1],'company':quote[0]+'Example Co'+quote[1],
+            'role_family':'automation','requirements':['Python experience','Linux knowledge'],'is_single_job':True}
+    monkeypatch.setattr(engine,'ollama_json',lambda *args:dict(result))
+    job={'text':'Example Co: Automation Student. Requirements: Python experience and Linux knowledge.'}
+    actual=engine.analyze(job)
+    assert actual['title']=='Automation Student' and actual['company']=='Example Co'
+    assert job['analysis_diagnostics']['raw_model_result']==result
+    result['title']=quote[0]+'Unrelated Title'+quote[1]
+    with pytest.raises(CVError,match='single job title'):engine.analyze(job)
+    result['title']=quote[0]+'Automation Student'+quote[1];result['company']=quote[0]+'Other Co'+quote[1]
+    with pytest.raises(CVError,match='company'):engine.analyze(job)
+
 def test_source_identity_over_model_reformatting(monkeypatch):
     result={'title':'Engineer - Embedded','company':'Wrong Co','role_family':'systems','requirements':['C++ development','Linux experience'],'is_single_job':False}
     monkeypatch.setattr(engine,'ollama_json',lambda *args:dict(result))
